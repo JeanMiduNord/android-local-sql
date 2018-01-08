@@ -16,7 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AjoutContact"></activity>
+        <activity android:name=".AjoutContact"
+            android:parentActivityName=".MainActivity"
+            ></activity>
     </application>
 
 </manifest>

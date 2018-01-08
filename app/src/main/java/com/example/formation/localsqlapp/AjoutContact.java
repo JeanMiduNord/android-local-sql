@@ -1,5 +1,6 @@
 package com.example.formation.localsqlapp;
 
+import android.app.ActionBar;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteException;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,14 @@ public class AjoutContact extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ajout_contact);
+
+        /**
+         *  donne la possibilité d'un retour arrière en affichant une fleche de retour dans la Action bar
+         */
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
     public void valideMail(View v){
         Button clickedButton = (Button) v;
@@ -42,11 +51,17 @@ public class AjoutContact extends AppCompatActivity {
         try {
             llNum = db.getWritableDatabase().insert("contact",null,hmValeurs);
             lsMessage = String.valueOf(llNum) + " enregistrement ajouté";
+            Toast.makeText(this,lsMessage, Toast.LENGTH_LONG).show();
+            ((EditText) findViewById(R.id.edtNom)).setText("");
+            ((EditText) findViewById(R.id.edtPrenom)).setText("");
+            ((EditText) findViewById(R.id.edtMail)).setText("");
         }
         catch(SQLiteException ex) {
             Log.e("Sql Exception", ex.getMessage());
             lsMessage = "Insertion ratée";
+            Toast.makeText(this,lsMessage, Toast.LENGTH_LONG).show();
+
         }
-        Toast.makeText(this,lsMessage, Toast.LENGTH_LONG).show();
+
     }
 }
