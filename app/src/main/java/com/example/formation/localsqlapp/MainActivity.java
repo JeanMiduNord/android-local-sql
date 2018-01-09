@@ -6,7 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewDebug;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,11 +18,12 @@ import java.util.Map;
 
 import fr.sm.database.DatabaseHandler;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView contactListView;
     private List<Map<String,String>> contactList;
-    private int toto, titi;
+    private Map<String,String> selectedPerson;
+    private Integer selectedIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
         ContactArrayAdapter contactAdapter = new ContactArrayAdapter(this,contactList);
 
+        contactListView.setOnItemClickListener(this);
         // définition de l'adapter de notre listView
 
-        toto = 1;
-        titi = 2;
         try {
             contactListView.setAdapter(contactAdapter);
         } catch (Exception ex){
@@ -74,5 +77,22 @@ public class MainActivity extends AppCompatActivity {
             listContact.add(contactCol);
         }
         return listContact;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        // obtention des informations globales
+        String lsChoix = adapterView.getItemAtPosition(i).toString();
+        // Toast.makeText(this, lsChoix, Toast.LENGTH_SHORT).show();
+
+        // obtention des informations depuis un map
+        selectedPerson = contactList.get(i);
+        Toast.makeText(this, selectedPerson.get("name"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, selectedPerson.get("first_name"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
+
+        // obtention des informations directement depuis le listView
+        lsChoix =  contactList.get(i).get("name");
+        Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
     }
 }
