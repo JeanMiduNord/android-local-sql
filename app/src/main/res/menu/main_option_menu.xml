@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mainMenuItemDelete"
+        android:title="Supprimer" />
+    <item
+        android:id="@+id/mainMenuOptionEdit"
+        android:title="Modifier" />
+</menu>

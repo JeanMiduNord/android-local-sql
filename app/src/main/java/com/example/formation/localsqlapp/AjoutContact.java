@@ -21,7 +21,7 @@ public class AjoutContact extends AppCompatActivity {
         setContentView(R.layout.activity_ajout_contact);
 
         /**
-         *  donne la possibilité d'un retour arrière en affichant une fleche de retour dans la Action bar
+         *  donne la possibilité d'un retour arrière en affichant une flèche de retour dans la Action bar
          */
         ActionBar actionBar = getActionBar();
         if (actionBar != null){
