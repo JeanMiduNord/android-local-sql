@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // référence au widget listView sur le layout
         contactListView = findViewById(R.id.contactListView);
         contactListInit();
-
-
     }
 
     private void contactListInit() {
@@ -102,9 +100,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.deleteSelectedContact();
                 break;
             case R.id.mainMenuOptionEdit:
+                Intent intention = new Intent(this, AjoutContact.class);
+                intention.putExtra("id",selectedPerson.get("id"));
+                intention.putExtra("first_name",selectedPerson.get("first_name"));
+                intention.putExtra("name",selectedPerson.get("name"));
+                intention.putExtra("email",selectedPerson.get("email"));
+                startActivityForResult(intention,1);
                 break;
         }
         return true;
+    }
+
+    /**
+     *
+     * @param requestCode = requestCode de l'appelant (ici = 1)
+     * @param resultCode
+     * @param data : donnée envoyée par le formulaire appelée
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode==1 && resultCode==RESULT_OK){
+          Toast.makeText(this,"Mise à jour effectuée", Toast.LENGTH_LONG).show();
+        contactListInit();
+      }
     }
 
     private void deleteSelectedContact(){
@@ -148,13 +166,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // obtention des informations depuis un map
         selectedPerson = contactList.get(i);
-        Toast.makeText(this, selectedPerson.get("name"), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, selectedPerson.get("first_name"), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
+ //       Toast.makeText(this, selectedPerson.get("name"), Toast.LENGTH_SHORT).show();
+  //      Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
 
         // obtention des informations directement depuis le listView
         lsChoix =  contactList.get(i).get("name");
-        Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
+   //     Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
         selectedIndex = i ;
     }
 }
