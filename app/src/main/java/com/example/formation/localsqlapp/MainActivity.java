@@ -24,25 +24,39 @@ import fr.sm.database.DatabaseHandler;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView contactListView;
-    private List<Map<String,String>> contactList;
-    private Map<String,String> selectedPerson;
+    private List<Map<String, String>> contactList;
+    private Map<String, String> selectedPerson;
     private Integer selectedIndex;
+    private final String LIFE_CYCLE = "cycle de vie";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(LIFE_CYCLE, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // référence au widget listView sur le layout
         contactListView = findViewById(R.id.contactListView);
         contactListInit();
+        // récupération des données sauvegardées
+        //
+        //  cas où on passe du mode
+        if (savedInstanceState != null){
+            selectedIndex = savedInstanceState.getInt("selectedIndex");
+            if (selectedIndex !=null) {
+
+                selectedPerson = contactList.get(selectedIndex);
+                contactListView.requestFocusFromTouch();
+                contactListView.setSelection(selectedIndex);
+            }
+        }
     }
 
     private void contactListInit() {
         //récupération de la liste des contacts
         contactList = this.getAllContact();
 
-        ContactArrayAdapter contactAdapter = new ContactArrayAdapter(this,contactList);
+        ContactArrayAdapter contactAdapter = new ContactArrayAdapter(this, contactList);
 
         contactListView.setOnItemClickListener(this);
         // définition de l'adapter de notre listView
@@ -53,25 +67,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /**
      * Lancement de l'activité formulaore au click sur un bouton
      * appelé par la classe MainActivity
+     *
      * @param view
      */
     public void openAddContact(View view) {
         Intent intention = new Intent(this, AjoutContact.class);
         startActivity(intention);
     }
-    private List<Map<String,String>> getAllContact(){
+
+    private List<Map<String, String>> getAllContact() {
         // instanciation composant à la base de données
         DatabaseHandler db = new DatabaseHandler(this);
         // exécution requete de sélection
         Cursor curseur = db.getReadableDatabase().rawQuery("SELECT first_name,name,email,id FROM contact", null);
         //Instanciation de la liste qui recevra les données
 
-        List<Map<String,String>> listContact = new ArrayList<>();
+        List<Map<String, String>> listContact = new ArrayList<>();
 
 
         // Affectation du résultat de la requete dans la liste
-        while (curseur.moveToNext()){
-            Map<String,String> contactCol = new HashMap();
+        while (curseur.moveToNext()) {
+            Map<String, String> contactCol = new HashMap();
             contactCol.put("name", curseur.getString(0));
             contactCol.put("first_name", curseur.getString(1));
             contactCol.put("email", curseur.getString(2));
@@ -82,14 +98,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     /**
-     *
      * Création du menu d'option
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // ajout des entrées du ficheir main_option_menu au
         // menu contextuel des activités
-        getMenuInflater().inflate(R.menu.main_option_menu,menu);
+        getMenuInflater().inflate(R.menu.main_option_menu, menu);
         return true;
     }
 
@@ -98,36 +113,37 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (item.getItemId()) {
             case R.id.mainMenuItemDelete:
                 this.deleteSelectedContact();
+                selectedIndex = null;
                 break;
             case R.id.mainMenuOptionEdit:
                 Intent intention = new Intent(this, AjoutContact.class);
-                intention.putExtra("id",selectedPerson.get("id"));
-                intention.putExtra("first_name",selectedPerson.get("first_name"));
-                intention.putExtra("name",selectedPerson.get("name"));
-                intention.putExtra("email",selectedPerson.get("email"));
-                startActivityForResult(intention,1);
+                intention.putExtra("id", selectedPerson.get("id"));
+                intention.putExtra("first_name", selectedPerson.get("first_name"));
+                intention.putExtra("name", selectedPerson.get("name"));
+                intention.putExtra("email", selectedPerson.get("email"));
+                startActivityForResult(intention, 1);
+                selectedIndex = null;
                 break;
         }
         return true;
     }
 
     /**
-     *
      * @param requestCode = requestCode de l'appelant (ici = 1)
      * @param resultCode
-     * @param data : donnée envoyée par le formulaire appelée
+     * @param data        : donnée envoyée par le formulaire appelée
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      if (requestCode==1 && resultCode==RESULT_OK){
-          Toast.makeText(this,"Mise à jour effectuée", Toast.LENGTH_LONG).show();
-        contactListInit();
-      }
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Mise à jour effectuée", Toast.LENGTH_LONG).show();
+            contactListInit();
+        }
     }
 
-    private void deleteSelectedContact(){
+    private void deleteSelectedContact() {
         int nb = 0;
-        if (selectedIndex !=null){
+        if (selectedIndex != null) {
             try {
                 // Création de la requete de suppression
                 String sql = "DELETE FROM contact WHERE id=?";
@@ -145,14 +161,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 // rafraichissement de la liste
                 contactListInit();
 
-            }
-            catch(SQLiteException ex){
+            } catch (SQLiteException ex) {
                 Toast.makeText(this, "impossible de supprimer", Toast.LENGTH_SHORT).show();
             }
             // réinitialisation de la liste des contacts
 
-        }else{
-            Toast.makeText(this,"Il faut sélectionner un contact",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Il faut sélectionner un contact", Toast.LENGTH_SHORT).show();
         }
 
         //return true;
@@ -166,12 +181,57 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // obtention des informations depuis un map
         selectedPerson = contactList.get(i);
- //       Toast.makeText(this, selectedPerson.get("name"), Toast.LENGTH_SHORT).show();
-  //      Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
+        //       Toast.makeText(this, selectedPerson.get("name"), Toast.LENGTH_SHORT).show();
+        //      Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
 
         // obtention des informations directement depuis le listView
-        lsChoix =  contactList.get(i).get("name");
-   //     Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
-        selectedIndex = i ;
+        lsChoix = contactList.get(i).get("name");
+        //     Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
+        selectedIndex = i;
     }
+
+    /**
+     * Persistance des données avant destruction de l'activité
+     *
+     * Sauvegarde l'instance, les données pour pouvior réinitialiser l'état du formumaire au retour d'une
+     * autre activité
+     * @param outState
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("selectedIndex", this.selectedIndex);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(LIFE_CYCLE, "onstart");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(LIFE_CYCLE, "onPause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(LIFE_CYCLE, "onResume");
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i(LIFE_CYCLE, "onRestart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(LIFE_CYCLE, "onStop");
+    }
+
 }
