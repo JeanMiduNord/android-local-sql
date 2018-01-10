@@ -1,6 +1,7 @@
 package fr.sm.database;
 
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
@@ -63,4 +64,37 @@ public class ContactDAO {
         return contact;
     }
 
+    public void deleteOneById(Long id){
+        String[] params = {id.toString()};
+        String sql = "DELETE FROM contact WHERE id=?";
+        this.db.getWritableDatabase().execSQL(sql,params);
+    }
+
+    public void persist(Contact entity){
+        if (entity.getId() == null){
+            this.insert(entity);
+        }
+        else{
+            this.update(entity);
+        }
+    }
+
+    private ContentValues getContentValuesFromEntity(Contact entity){
+        ContentValues values = new ContentValues();
+        values.put("name", entity.getName());
+        values.put("first_name", entity.getFirst_name());
+        values.put("eMail", entity.getEmail());
+        return values;
+    }
+
+    private void insert(Contact contact){
+        // la fonction retourne la valeur du dernier auto-incréùente
+        Long id = this.db.getWritableDatabase().insert("contact",null,getContentValuesFromEntity(contact));
+        contact.setId(id);
+    }
+
+    private void update(Contact contact){
+        String[] params = {contact.getId().toString()};
+        this.db.getWritableDatabase().update("contact", getContentValuesFromEntity(contact),"id=?", params);
+    }
 }

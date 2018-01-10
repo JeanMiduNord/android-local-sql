@@ -167,10 +167,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String sql = "DELETE FROM contact WHERE id=?";
                 String[] params = {String.valueOf(selectedPerson.getId())};
 
+                // Méthode DAO
+                dao.deleteOneById(Long.valueOf(selectedPerson.getId()));
+                // Ancienne méthode
                 // instanciation composant à la base de données
-                DatabaseHandler db = new DatabaseHandler(this);
+//                DatabaseHandler db = new DatabaseHandler(this);
                 // exécution requete
-                db.getWritableDatabase().execSQL(sql, params);
+ //               db.getWritableDatabase().execSQL(sql, params);
+
 
                 // 2ème possibilités d'écriture de lka requête
                 // possibilité de récupérer le nb d'éléments supprimés
@@ -190,6 +194,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //return true;
     }
+
+
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

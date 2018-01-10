@@ -6,7 +6,7 @@ public class Contact {
     private String name;
     private String first_name;
     private String email;
-    private long id;
+    private Long id;
 
     public Contact() {
     }
@@ -44,7 +44,7 @@ public class Contact {
         return this;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
