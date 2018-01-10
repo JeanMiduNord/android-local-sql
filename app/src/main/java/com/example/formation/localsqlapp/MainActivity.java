@@ -14,20 +14,24 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.formation.localsqlapp.model.Contact;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.sm.database.ContactDAO;
 import fr.sm.database.DatabaseHandler;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView contactListView;
-    private List<Map<String, String>> contactList;
-    private Map<String, String> selectedPerson;
+    private List<Contact> contactList;
+    private Contact selectedPerson;
     private Integer selectedIndex;
     private final String LIFE_CYCLE = "cycle de vie";
+    private ContactDAO dao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +39,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // instanciation de la connexion a la BDD
+        dao = new ContactDAO(new DatabaseHandler(this));
+
         // référence au widget listView sur le layout
         contactListView = findViewById(R.id.contactListView);
         contactListInit();
+
+       // test de la recherche d'un contact par DAO
+       // testDAO();
+
         // récupération des données sauvegardées
         //
         //  cas où on passe du mode
-        if (savedInstanceState != null){
+    /*    if (savedInstanceState != null){
             selectedIndex = savedInstanceState.getInt("selectedIndex");
             if (selectedIndex !=null) {
 
@@ -49,12 +60,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 contactListView.requestFocusFromTouch();
                 contactListView.setSelection(selectedIndex);
             }
+        }*/
+    }
+
+    private void testDAO() {
+        Contact contact = dao.findOneById(1);
+        if (contact.getName()!=null){
+            Log.i("DAO",contact.getName());
         }
     }
 
     private void contactListInit() {
-        //récupération de la liste des contacts
-        contactList = this.getAllContact();
+        //récupération de la liste des contacts ancienne méthode
+        contactList = dao.findAll();
 
         ContactArrayAdapter contactAdapter = new ContactArrayAdapter(this, contactList);
 
@@ -117,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case R.id.mainMenuOptionEdit:
                 Intent intention = new Intent(this, AjoutContact.class);
-                intention.putExtra("id", selectedPerson.get("id"));
-                intention.putExtra("first_name", selectedPerson.get("first_name"));
-                intention.putExtra("name", selectedPerson.get("name"));
-                intention.putExtra("email", selectedPerson.get("email"));
+                intention.putExtra("id", String.valueOf(selectedPerson.getId()));
+                intention.putExtra("first_name", selectedPerson.getFirst_name());
+                intention.putExtra("name", selectedPerson.getName());
+                intention.putExtra("email", selectedPerson.getEmail());
                 startActivityForResult(intention, 1);
                 selectedIndex = null;
                 break;
@@ -147,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 // Création de la requete de suppression
                 String sql = "DELETE FROM contact WHERE id=?";
-                String[] params = {this.selectedPerson.get("id")};
+                String[] params = {String.valueOf(selectedPerson.getId())};
 
                 // instanciation composant à la base de données
                 DatabaseHandler db = new DatabaseHandler(this);
@@ -185,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //      Toast.makeText(this, "sélectionné =" + String.valueOf(i +1), Toast.LENGTH_SHORT).show();
 
         // obtention des informations directement depuis le listView
-        lsChoix = contactList.get(i).get("name");
+        lsChoix = contactList.get(i).getName();
         //     Toast.makeText(this, "directement :" + lsChoix, Toast.LENGTH_SHORT).show();
         selectedIndex = i;
     }
@@ -200,7 +218,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("selectedIndex", this.selectedIndex);
+        if (selectedIndex != null){
+            outState.putInt("selectedIndex", this.selectedIndex);
+        }
     }
 
     @Override
